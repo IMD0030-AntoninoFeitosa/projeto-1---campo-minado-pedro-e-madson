@@ -34,7 +34,7 @@ cenario create_map(Difficulty level) {
     cena.dimensoes.minas = 10;
     cena.dimensoes.x = 10;
     cena.dimensoes.y = 10;
-    //10 x 10 + 10 minas
+    // 10 x 10 + 10 minas
   } else if (level == 1) {
     cena.dimensoes.minas = 40;
     cena.dimensoes.x = 15;
@@ -51,9 +51,9 @@ cenario create_map(Difficulty level) {
   }
   int l = cena.dimensoes.x;
   int c = cena.dimensoes.y;
-  for (int i = 0; i < l; i++){
+  for (int i = 0; i < l; i++) {
     std::vector<char> temp;
-    for (int j = 0; j < c; j++){
+    for (int j = 0; j < c; j++) {
       temp.push_back('X');
     }
     cena.mapa.push_back(temp);
@@ -62,22 +62,37 @@ cenario create_map(Difficulty level) {
   return cena;
 }
 
-
-void print_mapa(cenario cena){
-  for (int i = 0; i < cena.mapa.size(); i++){
-    for (int j = 0; j < cena.mapa[i].size(); j++){
-      std::cout <<(char) 65 + i << " - " << cena.mapa[i][j] << " ";
+void print_mapa(cenario cena) {
+  for (int i = 0; i < cena.mapa.size(); i++) {
+    std::cout << char(65 + i) << " - ";
+    for (int j = 0; j < cena.mapa[i].size(); j++) {
+      std::cout << " " << cena.mapa[i][j] << " ";
     }
-     std::cout << std::endl;
+    std::cout << std::endl;
+
+    if (i == cena.dimensoes.x - 1) {
+      std::cout << "     ";
+      for (int j = 0; j < cena.mapa[i].size(); j++) {
+        std::cout << "|  ";
+      }
+      std::cout << std::endl;
+    }
+  }
+  std::cout << "     ";
+  for (int j = 0; j < cena.mapa[0].size(); j++) {
+    if (j > 9) {
+      std::cout << j << " ";
+    } else {
+      std::cout << j << "  ";
+    }
   }
 }
+
 void start_game(Difficulty level) {
   std::vector<std::vector<char>> mapa;
 
   cenario cena = create_map(level);
   print_mapa(cena);
-
-  // std::cout << "comecou o jogo" << level << std::endl;
 }
 
 void store_difficulty(const std::string config_file, Difficulty level) {
