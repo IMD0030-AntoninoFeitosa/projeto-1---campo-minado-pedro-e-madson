@@ -93,8 +93,9 @@ void start_game(Difficulty level) {
   std::vector<std::vector<char>> mapa;
 
   cenario cena = create_map(level);
-  print_mapa(cena);
   cena = preencher_bombas(cena);
+  print_mapa(cena);
+  std::cout << std::endl;
   print_bombas(cena);
   // std::vector<int> v = gerar_indices(cena);
   // std::cout <<"tamanho: "<< v.size() << ": " << v[0] << v[1];
