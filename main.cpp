@@ -8,6 +8,7 @@
 
 #include "Game.h"
 #include "Bombas.h"
+#include "Jogada.h"
 
 const std::string CONFIG_FILE = "config.cfg";
 
@@ -97,6 +98,12 @@ void start_game(Difficulty level) {
   print_mapa(cena);
   std::cout << std::endl;
   print_bombas(cena);
+  std::vector<std::vector<int>> lados;
+
+  lados = adjacentes(cena, 1, 1);
+
+  std::cout << "Lados: " << lados.size() << std::endl;
+  
   // std::vector<int> v = gerar_indices(cena);
   // std::cout <<"tamanho: "<< v.size() << ": " << v[0] << v[1];
 }
