@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Game.h"
+#include "Bombas.h"
 
 const std::string CONFIG_FILE = "config.cfg";
 
@@ -93,6 +94,10 @@ void start_game(Difficulty level) {
 
   cenario cena = create_map(level);
   print_mapa(cena);
+  cena = preencher_bombas(cena);
+  print_bombas(cena);
+  // std::vector<int> v = gerar_indices(cena);
+  // std::cout <<"tamanho: "<< v.size() << ": " << v[0] << v[1];
 }
 
 void store_difficulty(const std::string config_file, Difficulty level) {
