@@ -150,39 +150,42 @@ void start_game(Difficulty level) {
       case Opcoes::iniciar_jogo: {
         do {
           print_mapa(cena);
-          std::cout << std::endl;
-        
-          int l, c;
-          char action;
-          std::cout << "A L e C" << std::endl;
-        
-          std::cin >> action;
-          std::cin >> l >> c;
-
-          std::vector<int> celula;
-        
-          celula.push_back(l);
-          celula.push_back(c);
-
-          if (verifica_bomba(cena, celula)){
-            mensagem_perdeu();
+          if (cena.selecionados.size() == (cena.dimensoes.x * cena.dimensoes.y - cena.dimensoes.minas)){
+            mensagem_ganhou();
             abort();
-          }
-
-          if (celula_valida(cena, celula)){
-            
-            cena = abrir_celula(cena, celula);
-            cena = abrir_celulas_adjacentes(cena, celula);
-            printf("\033c");
-            // int bombas = contar_bombas(cena, celula);
-            
-            // std::cout <<"BOMBAS: "<< bombas << std::endl;
-            // print_lados(cena, celula);
           } else {
-             std::cout <<"<< OPCAO INVÁLIDA >> " << std::endl;
+            std::cout << std::endl;
+        
+            int l, c;
+            char action;
+            std::cout << "A L e C" << std::endl;
+          
+            std::cin >> action;
+            std::cin >> l >> c;
+  
+            std::vector<int> celula;
+          
+            celula.push_back(l);
+            celula.push_back(c);
+  
+            if (verifica_bomba(cena, celula)){
+              mensagem_perdeu();
+              abort();
+            }
+  
+            if (celula_valida(cena, celula)){
+              
+              cena = abrir_celula(cena, celula);
+              cena = abrir_celulas_adjacentes(cena, celula);
+              printf("\033c");
+              // int bombas = contar_bombas(cena, celula);
+              
+              // std::cout <<"BOMBAS: "<< bombas << std::endl;
+              // print_lados(cena, celula);
+            } else {
+               std::cout <<"<< OPCAO INVÁLIDA >> " << std::endl;
+            }
           }
-          
-          
         } while(true);
         break;
       }
