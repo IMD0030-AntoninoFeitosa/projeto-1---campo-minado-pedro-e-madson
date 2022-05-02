@@ -2,8 +2,9 @@
 #include <ctime>
 #include <iostream>
 
-#include <vector>
 #include "Game.h"
+#include "Jogada.h"
+#include <vector>
 
 #ifndef BOMBAS_H
 #define BOMBAS_H
@@ -11,8 +12,9 @@
 std::vector<int> gerar_indices(cenario cena);
 cenario preencher_bombas(cenario cena);
 void print_bombas(cenario cena);
+bool verifica_bomba(cenario cena, std::vector<int> celula);
 
-std::vector<int> gerar_indices(cenario cena){ 
+std::vector<int> gerar_indices(cenario cena) {
   srand((unsigned)time(0));
   std::vector<int> indices;
 
@@ -25,27 +27,27 @@ std::vector<int> gerar_indices(cenario cena){
   return indices;
 }
 
-cenario preencher_bombas(cenario cena){
+cenario preencher_bombas(cenario cena) {
   do {
-    //gerando indices aleatorios
+    // gerando indices aleatorios
     std::vector<int> indices = gerar_indices(cena);
 
-    //verificar se indices já existem
+    // verificar se indices já existem
     bool existe = false;
-    for (int i = 0; i < cena.bombas.size(); i++){
+    for (int i = 0; i < cena.bombas.size(); i++) {
       int l = indices[0];
       int c = indices[1];
-      if (cena.bombas[i][0] == l && cena.bombas[i][1] == c){
+      if (cena.bombas[i][0] == l && cena.bombas[i][1] == c) {
         existe = true;
         break;
       }
     }
 
-    if (!existe){
+    if (!existe) {
       cena.bombas.push_back(indices);
     }
-    
-  }while(cena.bombas.size() < cena.dimensoes.minas);
+
+  } while (cena.bombas.size() < cena.dimensoes.minas);
 
   return cena;
 }
@@ -57,6 +59,19 @@ void print_bombas(cenario cena) {
     }
     std::cout << std::endl;
   }
+}
+
+bool verifica_bomba(cenario cena, std::vector<int> celula) {
+  int l = celula[0];
+  int c = celula[1];
+
+  for (int i = 0; i < cena.bombas.size(); i++) {
+    if (cena.bombas[i][0] == l && cena.bombas[i][1] == c) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 #endif
