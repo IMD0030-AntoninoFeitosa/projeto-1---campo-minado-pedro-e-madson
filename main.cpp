@@ -9,12 +9,14 @@
 #include "Game.h"
 #include "Bombas.h"
 #include "Jogada.h"
+#include "Mensagens.h"
 
 const std::string CONFIG_FILE = "config.cfg";
 
 void store_difficulty(const std::string config_file, Difficulty level);
 Difficulty load_difficulty(const std::string config_file);
 void print_mapa(cenario cena);
+int contar_bombas(cenario cena, std::vector<int> celula);
 
 void show_usage(void) {
   std::cout << "Usage: game [option]" << std::endl;
@@ -28,6 +30,23 @@ void show_usage(void) {
   std::cout << "                               -i or --intermediary"
             << std::endl;
   std::cout << "                               -a or --advanced" << std::endl;
+}
+
+int contar_bombas(cenario cena, std::vector<int> celula) {
+  int bombas = 0;
+
+  int l = celula[0];
+  int c = celula[1];
+
+  std::vector<std::vector<int>> lados = adjacentes(cena, celula);
+  
+  for (int i = 0; i < lados.size(); i++) {
+    if (verifica_bomba(cena, lados[i])){
+      bombas++;
+    }
+  }
+
+  return bombas;
 }
 
 cenario create_map(Difficulty level) {
@@ -66,9 +85,24 @@ cenario create_map(Difficulty level) {
 
 void print_mapa(cenario cena) {
   for (int i = 0; i < cena.mapa.size(); i++) {
-    std::cout << char(65 + i) << " - ";
+    // std::cout << char(65 + i) << " - ";
+    std::cout << i << " - ";
     for (int j = 0; j < cena.mapa[i].size(); j++) {
-      std::cout << " " << cena.mapa[i][j] << " ";
+      std::vector<int> celula;
+      celula.push_back(i);
+      celula.push_back(j);
+      if (esta_aberta(cena, celula)){
+        int bombas = contar_bombas(cena, celula);
+        if(verifica_bomba(cena, celula)){
+          std::cout << " " << "@" << " ";
+        } else {
+          std::cout << " " << bombas << " ";
+        }
+        
+      } else {
+        std::cout << " " << cena.mapa[i][j] << " ";
+        
+      }
     }
     std::cout << std::endl;
 
@@ -95,12 +129,76 @@ void start_game(Difficulty level) {
 
   cenario cena = create_map(level);
   cena = preencher_bombas(cena);
-  print_mapa(cena);
   std::cout << std::endl;
   print_bombas(cena);
-  std::vector<std::vector<int>> lados;
+  std::vector<int> cel;
+  cel.push_back(0);
+  cel.push_back(1);
+  
+  std::vector<std::vector<int>> lados = adjacentes(cena, cel);
+  mensagem_menu();
 
-  lados = adjacentes(cena, 1, 1);
+  bool sair = false;
+
+  do {
+    int resposta_usuario;
+    std::cout << "=>" << std::endl;
+    std::cin >> resposta_usuario;
+    std::cout << "==" << resposta_usuario <<std::endl;
+    printf("\033c");
+    switch (resposta_usuario) {
+      case Opcoes::iniciar_jogo: {
+        do {
+          print_mapa(cena);
+          std::cout << std::endl;
+        
+          int l, c;
+          char action;
+          std::cout << "A L e C" << std::endl;
+        
+          std::cin >> action;
+          std::cin >> l >> c;
+
+          std::vector<int> celula;
+        
+          celula.push_back(l);
+          celula.push_back(c);
+
+          if (verifica_bomba(cena, celula)){
+            mensagem_perdeu();
+            abort();
+          }
+
+          if (celula_valida(cena, celula)){
+            
+            cena = abrir_celula(cena, celula);
+            cena = abrir_celulas_adjacentes(cena, celula);
+            printf("\033c");
+            // int bombas = contar_bombas(cena, celula);
+            
+            // std::cout <<"BOMBAS: "<< bombas << std::endl;
+            // print_lados(cena, celula);
+          } else {
+             std::cout <<"<< OPCAO INVÁLIDA >> " << std::endl;
+          }
+          
+          
+        } while(true);
+        break;
+      }
+      case Opcoes::creditos_jogo:
+        mensagem_creditos();
+        break;
+      case Opcoes::instrucoes_jogo:
+        mensagem_instrucoes();
+        break;
+      case Opcoes::sair_jogo:
+        sair = true;
+        break;
+    }
+    
+    
+  } while(!sair);
 
   std::cout << "Lados: " << lados.size() << std::endl;
   
