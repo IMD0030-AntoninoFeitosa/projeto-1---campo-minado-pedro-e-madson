@@ -1,11 +1,14 @@
 #include "Game.h"
 #include <vector>
-#ifndef JOGADA_H
+
+#ifndef JOGADA_H // TODO deve conter todas as declarações do arquivo incluindo a inclusão das bibliotecas acima
 #define JOGADA_H
 
 // #include "Game.h"
 #include "Bombas.h"
 
+// TODO sempre que possível envie a referência do cenário: cenario & cena
+// caso contrário todas as informações precisam ser copiadas a cada chamada
 std::vector<std::vector<int>> adjacentes(cenario cena, std::vector<int> celula);
 void revelar(cenario& cena, int l, int c, int controlador);
 bool celula_valida(cenario cena, std::vector<int> celula);
@@ -14,6 +17,8 @@ void print_lados(cenario cena, std::vector<int> celula);
 void abrir_celulas_adjacentes(cenario cena, std::vector<int> celula);
 
 int numero_bombas(cenario cena, std::vector<int> celula);
+
+// TODO as implementações das funções devem ficar num arquivo .cpp
 
 int numero_bombas(cenario cena, std::vector<int> celula) {
   int bombas = 0;
@@ -116,7 +121,7 @@ bool celula_valida(cenario cena, std::vector<int> celula) {
 
       
 void revelar(cenario& cena, int l, int c, int controlador) {
-  std::vector<int> celula(l, c);
+  std::vector<int> celula(l, c); // TODO isso cria um vetor de 'l' valores todos iguais ao 'c' causando o erro
   if (celula_valida(cena, celula)){
     // std::cout<< " 1 " <<std::endl;
     if (!esta_aberta(cena, celula)){

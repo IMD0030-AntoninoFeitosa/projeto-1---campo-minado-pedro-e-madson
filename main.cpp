@@ -13,6 +13,8 @@
 
 const std::string CONFIG_FILE = "config.cfg";
 
+// TODO sempre que possível envie a referência do cenário: cenario & cena
+// caso contrário todas as informações precisam ser copiadas a cada chamada
 void store_difficulty(const std::string config_file, Difficulty level);
 Difficulty load_difficulty(const std::string config_file);
 void print_mapa(cenario cena);
@@ -185,11 +187,11 @@ void start_game(Difficulty level) {
     // std::cout << "==" << resposta_usuario <<std::endl;
     // printf("\033c");
     switch (resposta_usuario) {
-      case Opcoes::iniciar_jogo: {
+      case Opcoes::iniciar_jogo: { // TODO a enumaração Opcoes não foi definida
         do {
           print_mapa(cena);
           if (cena.selecionados.size() == (cena.dimensoes.x * cena.dimensoes.y - cena.dimensoes.minas)){
-            mensagem_ganhou();
+            mensagem_ganhou(); // TODO essa função não foi definida
             abort();
           } else {
             

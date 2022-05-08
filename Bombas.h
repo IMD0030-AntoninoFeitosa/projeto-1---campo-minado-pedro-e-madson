@@ -1,18 +1,24 @@
-#include <cstdlib>
+
+// TODO devem estar dentro do ifndef
+#include <cstdlib> 
 #include <ctime>
 #include <iostream>
 
 #include "Game.h"
 #include "Jogada.h"
 #include <vector>
+// TODO tudo isso
 
-#ifndef BOMBAS_H
+
+#ifndef BOMBAS_H // TODO deve conter todas as declarações do arquivo incluindo a inclusão das bibliotecas acima
 #define BOMBAS_H
 
 std::vector<int> gerar_indices(cenario cena);
 cenario preencher_bombas(cenario cena);
 void print_bombas(cenario cena);
 bool verifica_bomba(cenario cena, std::vector<int> celula);
+
+// TODO as implementações das funções devem ficar num arquivo .cpp
 
 std::vector<int> gerar_indices(cenario cena) {
   srand((unsigned)time(0));
@@ -28,6 +34,8 @@ std::vector<int> gerar_indices(cenario cena) {
 }
 
 cenario preencher_bombas(cenario cena) {
+  // TODO é mais eficiente verificar uma mina de cada vez ao invés de verificar se o mapa é válido
+
   do {
     // gerando indices aleatorios
     std::vector<int> indices = gerar_indices(cena);

@@ -1,7 +1,9 @@
 #include <iostream>
 
-#ifndef MENSAGENS_H
+#ifndef MENSAGENS_H // TODO deve conter todas as declarações do arquivo incluindo a inclusão das bibliotecas acima
 #define MENSAGENS_H
+
+// TODO as implementações das funções devem ficar num arquivo .cpp
 
 void mensagem_menu(){
 	std::cout << "" << std::endl;
