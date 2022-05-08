@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "Game.h"
-#include "Bombas.h"
 #include "Jogada.h"
+#include "Bombas.h"
 #include "Mensagens.h"
 
 const std::string CONFIG_FILE = "config.cfg";
@@ -17,20 +17,33 @@ void store_difficulty(const std::string config_file, Difficulty level);
 Difficulty load_difficulty(const std::string config_file);
 void print_mapa(cenario cena);
 int contar_bombas(cenario cena, std::vector<int> celula);
+// void revelar(int l, int c, int controlador);
 
-void show_usage(void) {
-  std::cout << "Usage: game [option]" << std::endl;
-  std::cout << "Option:" << std::endl;
-  std::cout << " -h or --help                  Display this information."
-            << std::endl;
-  std::cout << " -d or --difficulty <option>   Change the game difficulty for "
-               "<option>"
-            << std::endl;
-  std::cout << "                               -b or --beginner" << std::endl;
-  std::cout << "                               -i or --intermediary"
-            << std::endl;
-  std::cout << "                               -a or --advanced" << std::endl;
-}
+
+// void revelar(cenario& cena, int l, int c, int controlador) {
+//   std::vector<int> celula(l, c);
+//   if (celula_valida(cena, celula)){
+//     if (!esta_aberta(cena, celula)){
+//       if (numero_bombas(cena, celula) == 0 || controlador == 1 ) {
+//         revelar(l - 1, c, 0);
+//         revelar(l - 1, c - 1, 0);
+//         revelar(l - 1, c + 1, 0);
+        
+//         revelar(l + 1, c, 0);
+//         revelar(l + 1, c - 1, 0);
+//         revelar(l + 1, c + 1, 0);
+        
+//         revelar(l, c - 1, 0);
+//         revelar(l, c + 1, 0);
+
+//         cena.selecionados.push_back(celula);
+        
+//       } else {
+//         cena.selecionados.push_back(celula);
+//       }
+//     }
+//   }
+// }
 
 int contar_bombas(cenario cena, std::vector<int> celula) {
   int bombas = 0;
@@ -47,6 +60,31 @@ int contar_bombas(cenario cena, std::vector<int> celula) {
   }
 
   return bombas;
+}
+
+ // 7  0 
+ // 4  5 
+ // 1  3 
+ // 3  9 
+ // 4  9 
+ // 4  6 
+ // 8  5 
+ // 8  8 
+ // 7  8 
+ // 8  1 
+
+void show_usage(void) {
+  std::cout << "Usage: game [option]" << std::endl;
+  std::cout << "Option:" << std::endl;
+  std::cout << " -h or --help                  Display this information."
+            << std::endl;
+  std::cout << " -d or --difficulty <option>   Change the game difficulty for "
+               "<option>"
+            << std::endl;
+  std::cout << "                               -b or --beginner" << std::endl;
+  std::cout << "                               -i or --intermediary"
+            << std::endl;
+  std::cout << "                               -a or --advanced" << std::endl;
 }
 
 cenario create_map(Difficulty level) {
@@ -131,21 +169,21 @@ void start_game(Difficulty level) {
   cena = preencher_bombas(cena);
   std::cout << std::endl;
   print_bombas(cena);
-  std::vector<int> cel;
-  cel.push_back(0);
-  cel.push_back(1);
+  // std::vector<int> cel;
+  // cel.push_back(0);
+  // cel.push_back(1);
   
-  std::vector<std::vector<int>> lados = adjacentes(cena, cel);
+  // std::vector<std::vector<int>> lados = adjacentes(cena, cel);
   mensagem_menu();
 
   bool sair = false;
 
   do {
     int resposta_usuario;
-    std::cout << "=>" << std::endl;
+    // std::cout << "=>" << std::endl;
     std::cin >> resposta_usuario;
-    std::cout << "==" << resposta_usuario <<std::endl;
-    printf("\033c");
+    // std::cout << "==" << resposta_usuario <<std::endl;
+    // printf("\033c");
     switch (resposta_usuario) {
       case Opcoes::iniciar_jogo: {
         do {
@@ -154,15 +192,13 @@ void start_game(Difficulty level) {
             mensagem_ganhou();
             abort();
           } else {
+            
             std::cout << std::endl;
-        
             int l, c;
             char action;
             std::cout << "A L e C" << std::endl;
-          
             std::cin >> action;
             std::cin >> l >> c;
-  
             std::vector<int> celula;
           
             celula.push_back(l);
@@ -175,15 +211,12 @@ void start_game(Difficulty level) {
   
             if (celula_valida(cena, celula)){
               
-              cena = abrir_celula(cena, celula);
-              cena = abrir_celulas_adjacentes(cena, celula);
-              printf("\033c");
-              // int bombas = contar_bombas(cena, celula);
-              
-              // std::cout <<"BOMBAS: "<< bombas << std::endl;
-              // print_lados(cena, celula);
+              revelar(cena, l, c, 1);
+              //cena = abrir_celulas_adjacentes(cena, celula);
+              // printf("\033c");
+      
             } else {
-               std::cout <<"<< OPCAO INVÁLIDA >> " << std::endl;
+              std::cout <<"<< OPCAO INVÁLIDA >> " << std::endl;
             }
           }
         } while(true);
@@ -203,7 +236,7 @@ void start_game(Difficulty level) {
     
   } while(!sair);
 
-  std::cout << "Lados: " << lados.size() << std::endl;
+  // std::cout << "Lados: " << lados.size() << std::endl;
   
   // std::vector<int> v = gerar_indices(cena);
   // std::cout <<"tamanho: "<< v.size() << ": " << v[0] << v[1];
