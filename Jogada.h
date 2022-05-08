@@ -7,18 +7,35 @@
 #include "Bombas.h"
 
 std::vector<std::vector<int>> adjacentes(cenario cena, std::vector<int> celula);
-cenario abrir_celula(cenario cena, std::vector<int> celula);
+void revelar(cenario& cena, int l, int c, int controlador);
 bool celula_valida(cenario cena, std::vector<int> celula);
-cenario abrir_celula(cenario cena, std::vector<int> celula);
 bool esta_aberta(cenario cena, std::vector<int> celula);
 void print_lados(cenario cena, std::vector<int> celula);
-cenario abrir_celulas_adjacentes(cenario cena, std::vector<int> celula);
+void abrir_celulas_adjacentes(cenario cena, std::vector<int> celula);
 
+int numero_bombas(cenario cena, std::vector<int> celula);
 
-std::vector<std::vector<int>> adjacentes(cenario cena, std::vector<int> celula) {
+int numero_bombas(cenario cena, std::vector<int> celula) {
+  int bombas = 0;
+
+  int l = celula[0];
+  int c = celula[1];
+
+  std::vector<std::vector<int>> lados = adjacentes(cena, celula);
+  
+  for (int i = 0; i < lados.size(); i++) {
+    if (verifica_bomba(cena, lados[i])){
+      bombas++;
+    }
+  }
+
+  return bombas;
+}
+
+std::vector<std::vector<int>> adjacentes(cenario cena,
+                                         std::vector<int> celula) {
   int l = celula[0], c = celula[1];
   std::vector<std::vector<int>> vetor_saida;
-  
 
   // pegando celula de cima
   if (l - 1 >= 0) {
@@ -26,7 +43,7 @@ std::vector<std::vector<int>> adjacentes(cenario cena, std::vector<int> celula) 
     temp.push_back(l - 1);
     temp.push_back(c);
     vetor_saida.push_back(temp);
-    
+
     if (c + 1 < cena.dimensoes.y) {
       std::vector<int> temp;
       temp.push_back(l - 1);
@@ -96,31 +113,60 @@ bool celula_valida(cenario cena, std::vector<int> celula) {
 
   return false;
 }
-cenario abrir_celula(cenario cena, std::vector<int> celula) {
-  if (celula_valida(cena, celula) && !esta_aberta(cena, celula)) {
-    cena.selecionados.push_back(celula);
-  } else {
-    std::cout << "CELULA INVÁLIDA!!!" << std::endl;
-  }
-  return cena;
-}
 
-cenario abrir_celulas_adjacentes(cenario cena, std::vector<int> celula){
-  std::vector<std::vector<int>> lados = adjacentes(cena, celula);
-  for (int i = 0; i < lados.size(); i++) {
-    if (!verifica_bomba(cena, lados[i]) && !esta_aberta(cena, lados[i])){
-       cena.selecionados.push_back(lados[i]);
+      
+void revelar(cenario& cena, int l, int c, int controlador) {
+  std::vector<int> celula(l, c);
+  if (celula_valida(cena, celula)){
+    // std::cout<< " 1 " <<std::endl;
+    if (!esta_aberta(cena, celula)){
+      cena.selecionados.push_back(celula);
+      if (numero_bombas(cena, celula) == 0 || controlador == 1 ) {
+        revelar(cena, l - 1, c, 0);
+        revelar(cena, l - 1, c - 1, 0);
+        revelar(cena, l - 1, c + 1, 0);
+        
+        revelar(cena, l + 1, c, 0);
+        revelar(cena, l + 1, c - 1, 0);
+        revelar(cena, l + 1, c + 1, 0);
+        
+        revelar(cena, l, c - 1, 0);
+        revelar(cena, l, c + 1, 0);
+        
+        cena.selecionados.push_back(celula);
+      } else {
+        cena.selecionados.push_back(celula);
+      }
     }
   }
 
-  return cena;
+  // if (celula_valida(cena, celula) && ) {
+  //   int bombas = ;
+  //   if(bombas == 0){
+  //     return abrir_celulas_adjacentes(cena, celula);
+  //   }
+    
+  // } else {
+  //   std::cout << "CELULA INVÁLIDA!!!" << std::endl;
+  // }
+  // return cena;
 }
 
-void print_lados(cenario cena, std::vector<int> celula){
+void abrir_celulas_adjacentes(cenario cena, std::vector<int> celula) {
   std::vector<std::vector<int>> lados = adjacentes(cena, celula);
-  for (int i = 0; i < lados.size(); i++){
-      std::vector<int> lado = lados[i];
-      std::cout<< "L: " << lado[0] << " C: " << lado[1] << std::endl; 
+  for (int i = 0; i < lados.size(); i++) {
+    if (!verifica_bomba(cena, lados[i]) && !esta_aberta(cena, lados[i])) {
+      revelar(cena, lados[i][0],  lados[i][1], 0);
+    }
+  }
+  // return cena;
+}
+
+void print_lados(cenario cena, std::vector<int> celula) {
+  std::vector<std::vector<int>> lados = adjacentes(cena, celula);
+  for (int i = 0; i < lados.size(); i++) {
+    std::vector<int> lado = lados[i];
+    std::cout << "L: " << lado[0] << " C: " << lado[1] << std::endl;
   }
 }
 
