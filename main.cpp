@@ -1,51 +1,23 @@
 
 #include <array>
+#include <cctype>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 
+#include "Bombas.h"
 #include "Game.h"
 #include "Jogada.h"
-#include "Bombas.h"
 #include "Mensagens.h"
 
 const std::string CONFIG_FILE = "config.cfg";
 
-// TODO sempre que possível envie a referência do cenário: cenario & cena
-// caso contrário todas as informações precisam ser copiadas a cada chamada
 void store_difficulty(const std::string config_file, Difficulty level);
 Difficulty load_difficulty(const std::string config_file);
 void print_mapa(cenario cena);
 int contar_bombas(cenario cena, std::vector<int> celula);
-// void revelar(int l, int c, int controlador);
-
-
-// void revelar(cenario& cena, int l, int c, int controlador) {
-//   std::vector<int> celula(l, c);
-//   if (celula_valida(cena, celula)){
-//     if (!esta_aberta(cena, celula)){
-//       if (numero_bombas(cena, celula) == 0 || controlador == 1 ) {
-//         revelar(l - 1, c, 0);
-//         revelar(l - 1, c - 1, 0);
-//         revelar(l - 1, c + 1, 0);
-        
-//         revelar(l + 1, c, 0);
-//         revelar(l + 1, c - 1, 0);
-//         revelar(l + 1, c + 1, 0);
-        
-//         revelar(l, c - 1, 0);
-//         revelar(l, c + 1, 0);
-
-//         cena.selecionados.push_back(celula);
-        
-//       } else {
-//         cena.selecionados.push_back(celula);
-//       }
-//     }
-//   }
-// }
 
 int contar_bombas(cenario cena, std::vector<int> celula) {
   int bombas = 0;
@@ -54,26 +26,14 @@ int contar_bombas(cenario cena, std::vector<int> celula) {
   int c = celula[1];
 
   std::vector<std::vector<int>> lados = adjacentes(cena, celula);
-  
+
   for (int i = 0; i < lados.size(); i++) {
-    if (verifica_bomba(cena, lados[i])){
+    if (verifica_bomba(cena, lados[i])) {
       bombas++;
     }
   }
-
   return bombas;
 }
-
- // 7  0 
- // 4  5 
- // 1  3 
- // 3  9 
- // 4  9 
- // 4  6 
- // 8  5 
- // 8  8 
- // 7  8 
- // 8  1 
 
 void show_usage(void) {
   std::cout << "Usage: game [option]" << std::endl;
@@ -125,28 +85,52 @@ cenario create_map(Difficulty level) {
 
 void print_mapa(cenario cena) {
   for (int i = 0; i < cena.mapa.size(); i++) {
-    // std::cout << char(65 + i) << " - ";
+
+    if (i < 10 && cena.dimensoes.x > 10)
+      std::cout << " ";
+
     std::cout << i << " - ";
+
     for (int j = 0; j < cena.mapa[i].size(); j++) {
       std::vector<int> celula;
       celula.push_back(i);
       celula.push_back(j);
-      if (esta_aberta(cena, celula)){
+      if (esta_aberta(cena, celula)) {
         int bombas = contar_bombas(cena, celula);
-        if(verifica_bomba(cena, celula)){
-          std::cout << " " << "@" << " ";
+        if (verifica_bomba(cena, celula)) {
+          std::cout << " "
+                    << "X"
+                    << " ";
         } else {
-          std::cout << " " << bombas << " ";
+          if (esta_marcada(cena, celula)) {
+            std::cout << " "
+                      << "?"
+                      << " ";
+          } else {
+            std::cout << " " << bombas << " ";
+          }
         }
-        
       } else {
-        std::cout << " " << cena.mapa[i][j] << " ";
-        
+        if (verifica_bomba(cena, celula)) {
+          std::cout << " "
+                    << "X"
+                    << " ";
+        } else {
+          if (esta_marcada(cena, celula)) {
+            std::cout << " "
+                      << "?"
+                      << " ";
+          } else {
+            std::cout << " " << cena.mapa[i][j] << " ";
+          }
+        }
       }
     }
     std::cout << std::endl;
 
     if (i == cena.dimensoes.x - 1) {
+      if (cena.dimensoes.y > 10)
+        std::cout << " ";
       std::cout << "     ";
       for (int j = 0; j < cena.mapa[i].size(); j++) {
         std::cout << "|  ";
@@ -155,6 +139,8 @@ void print_mapa(cenario cena) {
     }
   }
   std::cout << "     ";
+  if (cena.dimensoes.y > 10)
+    std::cout << " ";
   for (int j = 0; j < cena.mapa[0].size(); j++) {
     if (j > 9) {
       std::cout << j << " ";
@@ -162,86 +148,79 @@ void print_mapa(cenario cena) {
       std::cout << j << "  ";
     }
   }
+
+  std:: cout << std::endl;
+  std::cout<<"Marcacoes: " << cena.marcacoes.size() << std::endl;
+  std::cout<<"Jogadas: " << cena.quantidade_jogadas << std::endl;
+  std::cout<<"Bombas: " << cena.dimensoes.minas - cena.marcacoes.size() << std::endl;
+std::cout << std::endl;
 }
 
 void start_game(Difficulty level) {
   std::vector<std::vector<char>> mapa;
-
   cenario cena = create_map(level);
-  cena = preencher_bombas(cena);
+  cena.quantidade_jogadas = 0;
+  preencher_bombas(cena);
   std::cout << std::endl;
   print_bombas(cena);
-  // std::vector<int> cel;
-  // cel.push_back(0);
-  // cel.push_back(1);
-  
-  // std::vector<std::vector<int>> lados = adjacentes(cena, cel);
   mensagem_menu();
 
   bool sair = false;
 
   do {
     int resposta_usuario;
-    // std::cout << "=>" << std::endl;
     std::cin >> resposta_usuario;
-    // std::cout << "==" << resposta_usuario <<std::endl;
-    // printf("\033c");
+    printf("\033c");
     switch (resposta_usuario) {
-      case Opcoes::iniciar_jogo: { // TODO a enumaração Opcoes não foi definida
-        do {
-          print_mapa(cena);
-          if (cena.selecionados.size() == (cena.dimensoes.x * cena.dimensoes.y - cena.dimensoes.minas)){
-            mensagem_ganhou(); // TODO essa função não foi definida
-            abort();
-          } else {
-            
-            std::cout << std::endl;
-            int l, c;
-            char action;
-            std::cout << "A L e C" << std::endl;
-            std::cin >> action;
-            std::cin >> l >> c;
-            std::vector<int> celula;
-          
-            celula.push_back(l);
-            celula.push_back(c);
-  
-            if (verifica_bomba(cena, celula)){
+    case Opcoes::iniciar_jogo: {
+      do {
+        printf("\033c");
+        print_mapa(cena);
+        if (cena.selecionados.size() ==
+            (cena.dimensoes.x * cena.dimensoes.y - cena.dimensoes.minas)) {
+          mensagem_ganhou();
+          abort();
+        } else {
+          std::cout << std::endl;
+          int l, c;
+          char action;
+          std::cout << "A L e C" << std::endl;
+          std::cin >> action;
+          std::cin >> l >> c;
+          std::vector<int> celula;
+          celula.push_back(l);
+          celula.push_back(c);
+          if (action == 'R' || action == 'r') {
+            if (verifica_bomba(cena, celula)) {
               mensagem_perdeu();
               abort();
             }
-  
-            if (celula_valida(cena, celula)){
-              
+            if (celula_valida(cena, celula)) {
+              cena.quantidade_jogadas ++;
               revelar(cena, l, c, 1);
-              //cena = abrir_celulas_adjacentes(cena, celula);
-              // printf("\033c");
-      
             } else {
-              std::cout <<"<< OPCAO INVÁLIDA >> " << std::endl;
+              std::cout << "<< OPCAO INVÁLIDA >> " << std::endl;
             }
+          } else if (action == 'M' || action == 'm') {
+            marcar_celula(cena, celula);
+          } else {
+            std::cout << "<< OPCAO INVÁLIDA >> " << std::endl;
           }
-        } while(true);
-        break;
-      }
-      case Opcoes::creditos_jogo:
-        mensagem_creditos();
-        break;
-      case Opcoes::instrucoes_jogo:
-        mensagem_instrucoes();
-        break;
-      case Opcoes::sair_jogo:
-        sair = true;
-        break;
+        }
+      } while (true);
+      break;
     }
-    
-    
-  } while(!sair);
-
-  // std::cout << "Lados: " << lados.size() << std::endl;
-  
-  // std::vector<int> v = gerar_indices(cena);
-  // std::cout <<"tamanho: "<< v.size() << ": " << v[0] << v[1];
+    case Opcoes::creditos_jogo:
+      mensagem_creditos();
+      break;
+    case Opcoes::instrucoes_jogo:
+      mensagem_instrucoes();
+      break;
+    case Opcoes::sair_jogo:
+      sair = true;
+      break;
+    }
+  } while (!sair);
 }
 
 void store_difficulty(const std::string config_file, Difficulty level) {
