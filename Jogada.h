@@ -1,24 +1,21 @@
 #include "Game.h"
 #include <vector>
-
-#ifndef JOGADA_H // TODO deve conter todas as declarações do arquivo incluindo a inclusão das bibliotecas acima
+#ifndef JOGADA_H
 #define JOGADA_H
 
 // #include "Game.h"
 #include "Bombas.h"
 
-// TODO sempre que possível envie a referência do cenário: cenario & cena
-// caso contrário todas as informações precisam ser copiadas a cada chamada
 std::vector<std::vector<int>> adjacentes(cenario cena, std::vector<int> celula);
-void revelar(cenario& cena, int l, int c, int controlador);
+void revelar(cenario &cena, int l, int c, int controlador);
 bool celula_valida(cenario cena, std::vector<int> celula);
 bool esta_aberta(cenario cena, std::vector<int> celula);
 void print_lados(cenario cena, std::vector<int> celula);
 void abrir_celulas_adjacentes(cenario cena, std::vector<int> celula);
-
+void marcar_celula(cenario &cena, std::vector<int> celula);
 int numero_bombas(cenario cena, std::vector<int> celula);
-
-// TODO as implementações das funções devem ficar num arquivo .cpp
+bool esta_marcada(cenario &cena, std::vector<int> celula);
+bool foi_relevada(cenario &cena, std::vector<int> celula);
 
 int numero_bombas(cenario cena, std::vector<int> celula) {
   int bombas = 0;
@@ -27,9 +24,9 @@ int numero_bombas(cenario cena, std::vector<int> celula) {
   int c = celula[1];
 
   std::vector<std::vector<int>> lados = adjacentes(cena, celula);
-  
+
   for (int i = 0; i < lados.size(); i++) {
-    if (verifica_bomba(cena, lados[i])){
+    if (verifica_bomba(cena, lados[i])) {
       bombas++;
     }
   }
@@ -119,60 +116,46 @@ bool celula_valida(cenario cena, std::vector<int> celula) {
   return false;
 }
 
-      
-void revelar(cenario& cena, int l, int c, int controlador) {
-  std::vector<int> celula(l, c); // TODO isso cria um vetor de 'l' valores todos iguais ao 'c' causando o erro
-  if (celula_valida(cena, celula)){
-    // std::cout<< " 1 " <<std::endl;
-    if (!esta_aberta(cena, celula)){
+void revelar(cenario &cena, int l, int c, int controlador) {
+  std::vector<int> celula;
+  celula.push_back(l);
+  celula.push_back(c);
+
+  if (celula_valida(cena, celula)) {
+    if (!esta_aberta(cena, celula)) {
       cena.selecionados.push_back(celula);
-      if (numero_bombas(cena, celula) == 0 || controlador == 1 ) {
+      if (numero_bombas(cena, celula) == 0 || controlador == 1) {
         revelar(cena, l - 1, c, 0);
         revelar(cena, l - 1, c - 1, 0);
         revelar(cena, l - 1, c + 1, 0);
-        
+
         revelar(cena, l + 1, c, 0);
         revelar(cena, l + 1, c - 1, 0);
         revelar(cena, l + 1, c + 1, 0);
-        
+
         revelar(cena, l, c - 1, 0);
         revelar(cena, l, c + 1, 0);
-        
-        cena.selecionados.push_back(celula);
+
+        if (!esta_marcada(cena, celula)){
+          cena.selecionados.push_back(celula);
+        }
       } else {
-        cena.selecionados.push_back(celula);
+        if (!esta_marcada(cena, celula)){
+          cena.selecionados.push_back(celula);
+        }
       }
     }
   }
-
-  // if (celula_valida(cena, celula) && ) {
-  //   int bombas = ;
-  //   if(bombas == 0){
-  //     return abrir_celulas_adjacentes(cena, celula);
-  //   }
-    
-  // } else {
-  //   std::cout << "CELULA INVÁLIDA!!!" << std::endl;
-  // }
-  // return cena;
 }
 
 void abrir_celulas_adjacentes(cenario cena, std::vector<int> celula) {
   std::vector<std::vector<int>> lados = adjacentes(cena, celula);
   for (int i = 0; i < lados.size(); i++) {
     if (!verifica_bomba(cena, lados[i]) && !esta_aberta(cena, lados[i])) {
-      revelar(cena, lados[i][0],  lados[i][1], 0);
+      revelar(cena, lados[i][0], lados[i][1], 0);
     }
   }
   // return cena;
-}
-
-void print_lados(cenario cena, std::vector<int> celula) {
-  std::vector<std::vector<int>> lados = adjacentes(cena, celula);
-  for (int i = 0; i < lados.size(); i++) {
-    std::vector<int> lado = lados[i];
-    std::cout << "L: " << lado[0] << " C: " << lado[1] << std::endl;
-  }
 }
 
 bool esta_aberta(cenario cena, std::vector<int> celula) {
@@ -184,4 +167,54 @@ bool esta_aberta(cenario cena, std::vector<int> celula) {
   }
   return false;
 }
+
+void marcar_celula(cenario &cena, std::vector<int> celula) {
+  int l = celula[0];
+  int c = celula[1];
+  int marcado = -1;
+  for (int i = 0; i < cena.marcacoes.size(); i++) {
+    if (l == cena.marcacoes[i][0] && c == cena.marcacoes[i][1]) {
+      marcado = i;
+    }
+  }
+  if (marcado == -1) {
+    if (!foi_relevada(cena, celula) &&
+        cena.marcacoes.size() <= cena.dimensoes.minas) {
+      cena.marcacoes.push_back(celula);
+    }
+  } else {
+    std::vector<std::vector<int>> marcacoes;
+    for (int i = 0; i < cena.marcacoes.size(); i++) {
+      if (i != marcado) {
+        marcacoes.push_back(cena.marcacoes[i]);
+      }
+    }
+    cena.marcacoes = marcacoes;
+  }
+}
+
+bool esta_marcada(cenario &cena, std::vector<int> celula) {
+
+  int l = celula[0];
+  int c = celula[1];
+
+  for (int i = 0; i < cena.marcacoes.size(); i++) {
+    if (l == cena.marcacoes[i][0] && c == cena.marcacoes[i][1]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool foi_relevada(cenario &cena, std::vector<int> celula) {
+  int l = celula[0];
+  int c = celula[1];
+  for (int i = 0; i < cena.selecionados.size(); i++) {
+    if (l == cena.selecionados[i][0] && c == cena.selecionados[i][1]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 #endif
