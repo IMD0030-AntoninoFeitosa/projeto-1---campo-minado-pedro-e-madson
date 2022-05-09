@@ -1,9 +1,7 @@
 #include <iostream>
 
-#ifndef MENSAGENS_H // TODO deve conter todas as declarações do arquivo incluindo a inclusão das bibliotecas acima
+#ifndef MENSAGENS_H
 #define MENSAGENS_H
-
-// TODO as implementações das funções devem ficar num arquivo .cpp
 
 void mensagem_menu(){
 	std::cout << "" << std::endl;
@@ -49,6 +47,18 @@ void mensagem_perdeu(){
     std::cout << " ╚████╔╝ ╚██████╔╝╚██████╗███████╗    ██║     ███████╗██║  ██║██████╔╝███████╗╚██████╔╝██╗ " << std::endl;
     std::cout << "  ╚═══╝   ╚═════╝  ╚═════╝╚══════╝    ╚═╝     ╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝ ╚═════╝ ╚═╝ " << std::endl;
 	  std::cout << std::endl << std::endl;
+}
+
+// Ganhou o jogo
+void mensagem_ganhou(){
+    std::cout << std::endl;
+    std::cout << "██╗   ██╗ ██████╗  ██████╗███████╗    ██╗   ██╗███████╗███╗   ██╗ ██████╗███████╗██╗   ██╗██╗" << std::endl;
+    std::cout << "██║   ██║██╔═══██╗██╔════╝██╔════╝    ██║   ██║██╔════╝████╗  ██║██╔════╝██╔════╝██║   ██║██║" << std::endl;
+    std::cout << "██║   ██║██║   ██║██║     █████╗      ██║   ██║█████╗  ██╔██╗ ██║██║     █████╗  ██║   ██║██║" << std::endl;
+    std::cout << "╚██╗ ██╔╝██║   ██║██║     ██╔══╝      ╚██╗ ██╔╝██╔══╝  ██║╚██╗██║██║     ██╔══╝  ██║   ██║╚═╝" << std::endl;
+    std::cout << " ╚████╔╝ ╚██████╔╝╚██████╗███████╗     ╚████╔╝ ███████╗██║ ╚████║╚██████╗███████╗╚██████╔╝██╗" << std::endl;
+    std::cout << "  ╚═══╝   ╚═════╝  ╚═════╝╚══════╝      ╚═══╝  ╚══════╝╚═╝  ╚═══╝ ╚═════╝╚══════╝ ╚═════╝ ╚═╝" << std::endl;
+    std::cout << std::endl << std::endl;
 }
 
 
