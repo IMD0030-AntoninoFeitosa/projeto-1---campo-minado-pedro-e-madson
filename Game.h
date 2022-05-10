@@ -1,3 +1,4 @@
+
 #ifndef GAME_H
 #define GAME_H
 
@@ -32,7 +33,7 @@ struct cenario {
 
 void store_difficulty(const std::string config_file, Difficulty level);
 Difficulty load_difficulty(const std::string config_file);
-void print_mapa(cenario cena, std::chrono::time_point<std::chrono::high_resolution_clock> start);
-int contar_bombas(cenario cena, std::vector<int> celula);
+void print_mapa(cenario cena);
+
 
 #endif
