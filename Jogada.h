@@ -120,30 +120,32 @@ void revelar(cenario &cena, int l, int c, int controlador) {
 
   if (celula_valida(cena, celula)) {
     if (!foi_revelada(cena, celula)) {
-      if (!foi_marcada(cena, celula)){
-        cena.selecionados.push_back(celula);
-        cena.reveladas++;
-      }
-      if (numero_bombas(cena, celula) == 0 || controlador == 1) {
-        revelar(cena, l - 1, c, 0);
-        revelar(cena, l - 1, c - 1, 0);
-        revelar(cena, l - 1, c + 1, 0);
-
-        revelar(cena, l + 1, c, 0);
-        revelar(cena, l + 1, c - 1, 0);
-        revelar(cena, l + 1, c + 1, 0);
-
-        revelar(cena, l, c - 1, 0);
-        revelar(cena, l, c + 1, 0);
-
-        if (!foi_marcada(cena, celula) && !foi_revelada(cena, celula)){
+      if (!verifica_bomba(cena, celula)) {
+        if (!foi_marcada(cena, celula)) {
           cena.selecionados.push_back(celula);
           cena.reveladas++;
         }
-      } else {
-        if (!foi_marcada(cena, celula) && !foi_revelada(cena, celula)){
-          cena.selecionados.push_back(celula);
-          cena.reveladas++;
+        if (numero_bombas(cena, celula) == 0 || controlador == 1) {
+          revelar(cena, l - 1, c, 0);
+          revelar(cena, l - 1, c - 1, 0);
+          revelar(cena, l - 1, c + 1, 0);
+
+          revelar(cena, l + 1, c, 0);
+          revelar(cena, l + 1, c - 1, 0);
+          revelar(cena, l + 1, c + 1, 0);
+
+          revelar(cena, l, c - 1, 0);
+          revelar(cena, l, c + 1, 0);
+
+          if (!foi_marcada(cena, celula) && !foi_revelada(cena, celula)) {
+            cena.selecionados.push_back(celula);
+            cena.reveladas++;
+          }
+        } else {
+          if (!foi_marcada(cena, celula) && !foi_revelada(cena, celula)) {
+            cena.selecionados.push_back(celula);
+            cena.reveladas++;
+          }
         }
       }
     }
@@ -167,22 +169,24 @@ void marcar_celula(cenario &cena, std::vector<int> celula) {
   // & marcado em posicao que é bomba
 
   char v = cena.mapa[l][c];
+
   bool revelada = foi_revelada(cena, celula);
 
-  if (!revelada){
-      if (v == '@' ){
-        cena.mapa[l][c] = '&';
-        cena.marcacoes ++;
-      } else if (v == '&'){
-        cena.mapa[l][c] = '@';
-        cena.marcacoes --;
-      } else if (v == '?'){
-        cena.mapa[l][c] = 'X';
-        cena.marcacoes --;
-      } else {
-        cena.mapa[l][c] = '?';
-        cena.marcacoes ++;
-      } 
+  std::cout << "VALOR: " << v << " " << revelada << std::endl;
+  if (!revelada) {
+    if (v == '@') {
+      cena.mapa[l][c] = '&';
+      cena.marcacoes++;
+    } else if (v == '&') {
+      cena.mapa[l][c] = '@';
+      cena.marcacoes--;
+    } else if (v == '?') {
+      cena.mapa[l][c] = 'X';
+      cena.marcacoes--;
+    } else {
+      cena.mapa[l][c] = '?';
+      cena.marcacoes++;
+    }
   }
 }
 
@@ -191,11 +195,11 @@ bool foi_marcada(cenario &cena, std::vector<int> celula) {
   int c = celula[1];
 
   char v = cena.mapa[l][c];
-  
-  if (v == '&' || v == '?'){
+
+  if (v == '&' || v == '?') {
     return true;
   }
-  
+
   return false;
 }
 
