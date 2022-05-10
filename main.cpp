@@ -1,25 +1,8 @@
-#include "Bombas.h"
 #include "Game.h"
-#include "Jogada.h"
-#include "Mensagens.h"
+#include "Celula.h"
+#include "Saidas.h"
 
 const std::string CONFIG_FILE = "config.cfg";
-
-int contar_bombas(cenario cena, std::vector<int> celula) {
-  int bombas = 0;
-
-  int l = celula[0];
-  int c = celula[1];
-
-  std::vector<std::vector<int>> lados = adjacentes(cena, celula);
-
-  for (int i = 0; i < lados.size(); i++) {
-    if (verifica_bomba(cena, lados[i])) {
-      bombas++;
-    }
-  }
-  return bombas;
-}
 
 void show_usage(void) {
   std::cout << "Usage: game [option]" << std::endl;
@@ -74,8 +57,7 @@ cenario create_map(Difficulty level) {
 }
 
 void print_mapa(
-    cenario cena,
-    std::chrono::time_point<std::chrono::high_resolution_clock> start) {
+    cenario cena) {
   for (int i = 0; i < cena.mapa.size(); i++) {
 
     if (i < 10 && cena.dimensoes.x > 10) {
@@ -90,7 +72,7 @@ void print_mapa(
       celula.push_back(j);
       if (foi_revelada(cena, celula)) {
         
-        int bombas = contar_bombas(cena, celula);
+        int bombas = numero_bombas(cena, celula);
         
         if (verifica_bomba(cena, celula)) {
           
@@ -145,18 +127,6 @@ void print_mapa(
       std::cout << j << "  ";
     }
   }
-
-  auto finish = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> elapsed = finish - start;
-
-  std::cout << std::endl;
-  std::cout << "Jogadas: " << cena.quantidade_jogadas << std::endl;
-  std::cout << "Abertas: " << cena.reveladas << std::endl;
-  std::cout << "Marcacoes: " << cena.marcacoes << std::endl;
-  std::cout << "Minas: " << cena.dimensoes.minas - cena.marcacoes
-            << std::endl;
-  std::cout << "Tempo: " << elapsed.count() << "s" << std::endl;
-  std::cout << std::endl;
 }
 
 void start_game(Difficulty level) {
@@ -169,22 +139,24 @@ void start_game(Difficulty level) {
   bool sair = false;
 
   do {
-    auto start = std::chrono::high_resolution_clock::now();
     timespec t_start, t_end;
     int resposta_usuario;
     std::cin >> resposta_usuario;
     printf("\033c");
     switch (resposta_usuario) {
     case Opcoes::iniciar_jogo: {
+      auto start = std::chrono::high_resolution_clock::now();
       do {
         printf("\033c");
-        print_mapa(cena, start);
+        print_mapa(cena);
+        metricas(cena, start);
         if (cena.reveladas ==
             ((cena.dimensoes.x * cena.dimensoes.y) - cena.dimensoes.minas)) {
+          metricas(cena, start);
           mensagem_ganhou();
           abort();
         } else {
-          std::cout << std::endl;
+          // std::cout << std::endl;
           int l, c;
           char action;
           std::cout << "A L e C" << std::endl;
@@ -196,7 +168,9 @@ void start_game(Difficulty level) {
           celula.push_back(c);
 
           if (action == 'R' || action == 'r') {
-
+            printf("\033c");
+            print_mapa(cena);
+            metricas(cena, start);
             if (verifica_bomba(cena, celula)) {
               mensagem_perdeu();
               abort();
@@ -208,6 +182,9 @@ void start_game(Difficulty level) {
               std::cout << "<< OPCAO INVÁLIDA >> " << std::endl;
             }
           } else if (action == 'M' || action == 'm') {
+            printf("\033c");
+            print_mapa(cena);
+            metricas(cena, start);
             if (celula_valida(cena, celula)) {
               marcar_celula(cena, celula);
             } else {
