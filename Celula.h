@@ -12,7 +12,9 @@ bool foi_marcada(cenario &cena, std::vector<int> celula);
 bool foi_revelada(cenario &cena, std::vector<int> celula);
 
 std::vector<int> gerar_indices(cenario cena);
-void preencher_bombas(cenario& cena);
+void preencher_bombas(cenario & cena);
+void preencher_bombas(cenario & cena, std::vector<std::vector<int>> invalidos);
+void preencher_bombas(cenario & cena, std::vector<int> celula);
 bool verifica_bomba(cenario cena, std::vector<int> celula);
 
 #endif
