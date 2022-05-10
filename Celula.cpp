@@ -200,10 +200,10 @@ bool foi_revelada(cenario &cena, std::vector<int> celula) {
 }
 
 /*
-*
-*Metodos das minas
-*
-*/
+ *
+ *Metodos das minas
+ *
+ */
 std::vector<int> gerar_indices(cenario cena) {
   srand((unsigned)time(0));
   std::vector<int> indices;
@@ -217,18 +217,76 @@ std::vector<int> gerar_indices(cenario cena) {
   return indices;
 }
 
-void preencher_bombas(cenario& cena) {
-    int count_bombas = 0;
-    do {
-      std::vector<int> indices = gerar_indices(cena);
-      int l = indices[0];
-      int c = indices[1];
-    
-      if (cena.mapa[l][c] != '@'){
-        cena.mapa[l][c] = '@';
-        count_bombas++;
+void preencher_bombas(cenario &cena) {
+  int count_bombas = 0;
+  do {
+    std::vector<int> indices = gerar_indices(cena);
+    int l = indices[0];
+    int c = indices[1];
+
+    if (cena.mapa[l][c] != '@') {
+      cena.mapa[l][c] = '@';
+      count_bombas++;
+    }
+  } while (count_bombas < cena.dimensoes.minas);
+}
+void preencher_bombas(cenario &cena, std::vector<std::vector<int>> invalidos) {
+  int count_bombas = 0;
+  do {
+    std::vector<int> indices = gerar_indices(cena);
+    int l = indices[0];
+    int c = indices[1];
+
+    bool esta_ao_lado = false;
+
+    for (int i = 0; i < invalidos.size(); i++){
+      if (l == invalidos[i][0] && c == invalidos[i][1]){
+        esta_ao_lado = true;
+        break;
       }
-    } while(count_bombas < cena.dimensoes.minas);
+    }
+
+    if (cena.mapa[l][c] != '@' && !esta_ao_lado) {
+      cena.mapa[l][c] = '@';
+      count_bombas++;
+    }
+  } while (count_bombas < cena.dimensoes.minas);
+}
+void preencher_bombas(cenario & cena, std::vector<int> celula) {
+  srand((unsigned)time(0));
+  
+  std::vector<std::vector<int>> lados = adjacentes(cena, celula);
+  int size = lados.size();
+  
+  if (size > 4){
+    size = size - 4;
+  } 
+  
+  int bombas = (rand() % size) + 1;
+
+  // std::cout << "BOMBAS: " << bombas <<std::endl; 
+
+  for (int i = 0; i < bombas; i++){
+    int l = lados[i][0];
+    int c = lados[i][1];
+    if (l != celula[0] && c != celula[1]){
+      cena.mapa[l][c] = '@';
+    }
+  }
+  
+  int count_bombas = bombas;
+  
+  do {
+    std::vector<int> indices = gerar_indices(cena);
+    int l = indices[0];
+    int c = indices[1];
+
+    if (cena.mapa[l][c] != '@' && l != celula[0] && c != celula[1]) {
+      // std::cout << "l: " << l << " c: " << c <<std::endl; 
+      cena.mapa[l][c] = '@';
+      count_bombas++;
+    }
+  } while (count_bombas < cena.dimensoes.minas);
 }
 
 bool verifica_bomba(cenario cena, std::vector<int> celula) {
@@ -239,3 +297,4 @@ bool verifica_bomba(cenario cena, std::vector<int> celula) {
   }
   return false;
 }
+
