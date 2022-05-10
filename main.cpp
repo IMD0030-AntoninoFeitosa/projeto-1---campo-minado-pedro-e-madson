@@ -1,5 +1,5 @@
-#include "Game.h"
 #include "Celula.h"
+#include "Game.h"
 #include "Saidas.h"
 
 const std::string CONFIG_FILE = "config.cfg";
@@ -23,11 +23,11 @@ cenario create_map(Difficulty level) {
   cena.marcacoes = 0;
   cena.quantidade_jogadas = 0;
   cena.reveladas = 0;
-  
+
   if (level == 0) {
     cena.dimensoes.minas = 10;
     cena.dimensoes.x = 10;
-    cena.dimensoes.y = 10; 
+    cena.dimensoes.y = 10;
     // 10 x 10 + 10 minas
   } else if (level == 1) {
     cena.dimensoes.minas = 40;
@@ -56,8 +56,7 @@ cenario create_map(Difficulty level) {
   return cena;
 }
 
-void print_mapa(
-    cenario cena) {
+void print_mapa(cenario cena) {
   for (int i = 0; i < cena.mapa.size(); i++) {
 
     if (i < 10 && cena.dimensoes.x > 10) {
@@ -71,17 +70,17 @@ void print_mapa(
       celula.push_back(i);
       celula.push_back(j);
       if (foi_revelada(cena, celula)) {
-        
+
         int bombas = numero_bombas(cena, celula);
-        
+
         if (verifica_bomba(cena, celula)) {
-          
+
           if (foi_marcada(cena, celula)) {
             std::cout << " ? ";
           } else {
             std::cout << " X ";
           }
-          
+
         } else {
           if (foi_marcada(cena, celula)) {
             std::cout << " ? ";
@@ -130,16 +129,20 @@ void print_mapa(
 }
 
 void start_game(Difficulty level) {
+  bool preencheu = false;
   std::vector<std::vector<char>> mapa;
   cenario cena = create_map(level);
-  preencher_bombas(cena);
+
+  if (level == 0) {
+    preencher_bombas(cena);
+    preencheu = true;
+  }
   std::cout << std::endl;
   mensagem_menu();
 
   bool sair = false;
 
   do {
-    timespec t_start, t_end;
     int resposta_usuario;
     std::cin >> resposta_usuario;
     printf("\033c");
@@ -168,14 +171,30 @@ void start_game(Difficulty level) {
           celula.push_back(c);
 
           if (action == 'R' || action == 'r') {
+            bool eh_valida = celula_valida(cena, celula);
+            bool eh_bomba = verifica_bomba(cena, celula);
+
+            // comencando com 0
+            if (level == 1 && !preencheu && eh_valida) {
+              preencher_bombas(cena, adjacentes(cena, celula));
+            }
+
+            // comencando com numero
+            if (level == 2 && !preencheu && eh_valida) {
+              preencher_bombas(cena, celula);
+            }
+
             printf("\033c");
             print_mapa(cena);
             metricas(cena, start);
-            if (verifica_bomba(cena, celula)) {
+            preencheu = true;
+            
+            if (eh_bomba) {
               mensagem_perdeu();
               abort();
             }
-            if (celula_valida(cena, celula)) {
+
+            if (eh_valida) {
               cena.quantidade_jogadas++;
               revelar(cena, l, c, 1);
             } else {
