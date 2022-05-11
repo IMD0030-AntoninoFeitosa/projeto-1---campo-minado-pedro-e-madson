@@ -91,6 +91,7 @@ void read_records(std::vector<Record> &records, std::string &file_name) {
   
   int lines = std::count(std::istreambuf_iterator<char>(inFile), 
              std::istreambuf_iterator<char>(), '\n');
+  
   std::ifstream file;
   file.open(file_name.c_str());
   if (file.is_open()) {
@@ -115,7 +116,7 @@ void read_records(std::vector<Record> &records, std::string &file_name) {
 void write(char * file_name, int n, Record ** vector){
 
   std::ofstream file;
-  file.open(file_name);
+  file.open(file_name, std::ios::app);
   if (file.is_open()) {
     for (int i=0;i<n;i++) {
       file << vector[i]->name << std::endl;
