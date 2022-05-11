@@ -21,6 +21,8 @@ std::ostream &operator<<(std::ostream &os, Record const &r);
 std::ostream &operator<<(std::ostream &os, std::vector<Record> &vet);
 
 void sort(std::vector<Record> &records);
+void print_ranking(std::vector<Record> &records);
+std::vector<Record> ranking_nivel (std::vector<Record> &records);
 
 void write_records(std::vector<Record> &records, std::string &file_name);
 
