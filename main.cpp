@@ -9,7 +9,7 @@ std::string file_name = "logs.txt";
 void show_usage(void) {
   std::cout << "Usage: game [option]" << std::endl;
   std::cout << "Option:" << std::endl;
-  std::cout << "-- init to init game"
+  std::cout << " --init to init game"
             << std::endl;
   std::cout << " -r or --ranking display ranking information"
             << std::endl;
@@ -31,7 +31,7 @@ cenario create_map(Difficulty level) {
   cena.reveladas = 0;
 
   if (level == 0) {
-    cena.dimensoes.minas = 1;
+    cena.dimensoes.minas = 10;
     cena.dimensoes.x = 10;
     cena.dimensoes.y = 10;
     // 10 x 10 + 10 minas
@@ -169,16 +169,21 @@ void start_game(Difficulty level) {
 
   do {
     int resposta_usuario;
-    std::cin >> resposta_usuario;
+    std::cout << "ESCOLHA UMA OPÇÃO: "; std::cin >> resposta_usuario;
     printf("\033c");
     switch (resposta_usuario) {
     case Opcoes::iniciar_jogo: {
       auto start = std::chrono::high_resolution_clock::now();
+      bool primeira_volta = true;
       do {
         auto finish = std::chrono::high_resolution_clock::now();
+        if(primeira_volta){
+          finish = start;
+        }
         printf("\033c");
         print_mapa(cena);
         metricas(cena, start, finish);
+        primeira_volta = false;
         if (cena.reveladas ==
             ((cena.dimensoes.x * cena.dimensoes.y) - cena.dimensoes.minas)) {  
           std::chrono::duration<double> elapsed = finish - start;
@@ -208,7 +213,6 @@ void start_game(Difficulty level) {
           abort();
           
         } else {
-          // std::cout << std::endl;
           int l, c;
           char action;
           std::cout << "A L e C" << std::endl;
