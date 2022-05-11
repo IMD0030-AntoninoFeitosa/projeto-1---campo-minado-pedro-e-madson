@@ -9,6 +9,10 @@ std::string file_name = "logs.txt";
 void show_usage(void) {
   std::cout << "Usage: game [option]" << std::endl;
   std::cout << "Option:" << std::endl;
+  std::cout << "-- init to init game"
+            << std::endl;
+  std::cout << " -r or --ranking display ranking information"
+            << std::endl;
   std::cout << " -h or --help                  Display this information."
             << std::endl;
   std::cout << " -d or --difficulty <option>   Change the game difficulty for "
@@ -144,7 +148,7 @@ void print_mapa(cenario cena) {
 void start_game(Difficulty level) {
   Record usuario;
   std::vector<Record> vec;
-  read_records(vec, file_name);  
+  read_records(vec, file_name);
   
   bool preencheu = false;
   std::vector<std::vector<char>> mapa;
@@ -179,28 +183,30 @@ void start_game(Difficulty level) {
             ((cena.dimensoes.x * cena.dimensoes.y) - cena.dimensoes.minas)) {  
           std::chrono::duration<double> elapsed = finish - start;
 
-
           usuario.milliseconds = elapsed.count();
           vec.push_back(usuario);
-          
-          std::cout << usuario.name <<std::endl;
-          std::cout << usuario.milliseconds <<std::endl;
-          std::cout << usuario.nivel <<std::endl;
 
           Record ** records {new Record*[vec.size()]};
+          
           for(int i=0;i<vec.size();i++){
             records[i] = new Record{vec[i]};
           }
+          
           char output [] = "logs.txt";
-          // metricas(cena, start, finish);
+          
+          printf("\033c");
+          print_mapa(cena);
+          metricas(cena, start, finish);
           mensagem_ganhou();
+          
           write(output, vec.size(), records);
+          
           for(int i=0;i<vec.size(); i++){
             delete records[i];
           }
           delete [] records;
-          // write_records(vec, file_name);
           abort();
+          
         } else {
           // std::cout << std::endl;
           int l, c;
@@ -326,12 +332,22 @@ int main(int argc, char **argv) {
     } else if (arg == "-d" || arg == "--difficulty") {
       if (argc > 2) {
         std::string newlevel = argv[2];
+        std::string iniciar = argv[3];
         if (newlevel == "-b" || newlevel == "--beginner") {
           store_difficulty(CONFIG_FILE, Difficulty::beginner);
+          if (iniciar == "--init"){
+            start_game(Difficulty::beginner);
+          }
         } else if (newlevel == "-i" || newlevel == "--intermediary") {
           store_difficulty(CONFIG_FILE, Difficulty::intermediary);
+          if (iniciar == "--init"){
+            start_game(Difficulty::intermediary);
+          }
         } else if (newlevel == "-a" || newlevel == "--advanced") {
           store_difficulty(CONFIG_FILE, Difficulty::advanced);
+          if (iniciar == "--init"){
+            start_game(Difficulty::advanced);
+          }
         } else {
           std::cout << "Unknown difficulty argument: " << newlevel << std::endl;
           show_usage();
@@ -341,6 +357,10 @@ int main(int argc, char **argv) {
                   << std::endl;
         show_usage();
       }
+    } if (arg == "-r" || arg == "--ranking") {
+      std::vector<Record> vec;
+      read_records(vec, file_name);
+      print_ranking(vec);
     } else {
       std::cout << "Unknown argument: " << argv[1] << std::endl;
       show_usage();
