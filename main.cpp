@@ -1,8 +1,10 @@
+#include "Record.hpp"
 #include "Celula.h"
 #include "Game.h"
 #include "Saidas.h"
 
 const std::string CONFIG_FILE = "config.cfg";
+std::string file_name = "logs.txt";
 
 void show_usage(void) {
   std::cout << "Usage: game [option]" << std::endl;
@@ -25,7 +27,7 @@ cenario create_map(Difficulty level) {
   cena.reveladas = 0;
 
   if (level == 0) {
-    cena.dimensoes.minas = 10;
+    cena.dimensoes.minas = 1;
     cena.dimensoes.x = 10;
     cena.dimensoes.y = 10;
     // 10 x 10 + 10 minas
@@ -58,12 +60,13 @@ cenario create_map(Difficulty level) {
 
 void print_mapa(cenario cena) {
   for (int i = 0; i < cena.mapa.size(); i++) {
-
+    std::cout << "\033[1;32m";
     if (i < 10 && cena.dimensoes.x > 10) {
       std::cout << " ";
     }
 
     std::cout << i << " - ";
+    std::cout << "\033[0m";
 
     for (int j = 0; j < cena.mapa[i].size(); j++) {
       std::vector<int> celula;
@@ -76,22 +79,31 @@ void print_mapa(cenario cena) {
         if (verifica_bomba(cena, celula)) {
 
           if (foi_marcada(cena, celula)) {
-            std::cout << " ? ";
+            std::cout << "\033[1;33m ? \033[0m";
           } else {
             std::cout << " X ";
           }
 
         } else {
           if (foi_marcada(cena, celula)) {
-            std::cout << " ? ";
+            std::cout << "\033[1;33m ? \033[0m";
           } else {
-            std::cout << " " << bombas << " ";
+            if (bombas == 0){
+               std::cout << "\033[1;32m";
+            } else if (bombas > 0 && bombas <= 2){
+               std::cout << "\033[0;36m";
+            } else if (bombas > 2 && bombas <= 4){
+               std::cout << "\033[0;31m";
+            } else {
+               std::cout << "\033[0;35m";
+            }
+            std::cout << " " << bombas << " \033[0m";
           }
         }
       } else {
         if (verifica_bomba(cena, celula)) {
           if (foi_marcada(cena, celula)) {
-            std::cout << " ? ";
+            std::cout << "\033[1;33m ? \033[0m";
           } else {
             std::cout << " X ";
           }
@@ -105,7 +117,7 @@ void print_mapa(cenario cena) {
       }
     }
     std::cout << std::endl;
-
+    std::cout << "\033[1;32m";
     if (i == cena.dimensoes.x - 1) {
       if (cena.dimensoes.y > 10)
         std::cout << " ";
@@ -126,12 +138,21 @@ void print_mapa(cenario cena) {
       std::cout << j << "  ";
     }
   }
+    std::cout << "\033[0m";
 }
 
 void start_game(Difficulty level) {
+  Record usuario;
+  std::vector<Record> vec;
+  read_records(vec, file_name);  
+  
   bool preencheu = false;
   std::vector<std::vector<char>> mapa;
   cenario cena = create_map(level);
+  std::cout << "DIGITE SEU NOME: ";
+  std::cin >> usuario.name;
+  std::cout << std::endl;
+  usuario.nivel = level;
 
   if (level == 0) {
     preencher_bombas(cena);
@@ -150,13 +171,25 @@ void start_game(Difficulty level) {
     case Opcoes::iniciar_jogo: {
       auto start = std::chrono::high_resolution_clock::now();
       do {
+        auto finish = std::chrono::high_resolution_clock::now();
         printf("\033c");
         print_mapa(cena);
-        metricas(cena, start);
+        metricas(cena, start, finish);
         if (cena.reveladas ==
-            ((cena.dimensoes.x * cena.dimensoes.y) - cena.dimensoes.minas)) {
-          metricas(cena, start);
+            ((cena.dimensoes.x * cena.dimensoes.y) - cena.dimensoes.minas)) {  
+          std::chrono::duration<double> elapsed = finish - start;
+
+
+          usuario.milliseconds = elapsed.count();
+          vec.push_back(usuario);
+          
+          std::cout << usuario.name <<std::endl;
+          std::cout << usuario.milliseconds <<std::endl;
+          std::cout << usuario.nivel <<std::endl;
+          
+          // metricas(cena, start, finish);
           mensagem_ganhou();
+          write_records(vec, file_name);
           abort();
         } else {
           // std::cout << std::endl;
@@ -186,7 +219,7 @@ void start_game(Difficulty level) {
 
             printf("\033c");
             print_mapa(cena);
-            metricas(cena, start);
+            metricas(cena, start, std::chrono::high_resolution_clock::now());
             preencheu = true;
             
             if (eh_bomba) {
@@ -203,7 +236,7 @@ void start_game(Difficulty level) {
           } else if (action == 'M' || action == 'm') {
             printf("\033c");
             print_mapa(cena);
-            metricas(cena, start);
+            metricas(cena, start, std::chrono::high_resolution_clock::now());
             if (celula_valida(cena, celula)) {
               marcar_celula(cena, celula);
             } else {
@@ -281,7 +314,6 @@ int main(int argc, char **argv) {
     if (arg == "-h" || arg == "--help") {
       show_usage();
     } else if (arg == "-d" || arg == "--difficulty") {
-
       if (argc > 2) {
         std::string newlevel = argv[2];
         if (newlevel == "-b" || newlevel == "--beginner") {
