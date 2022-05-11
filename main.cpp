@@ -148,7 +148,6 @@ void print_mapa(cenario cena) {
 void start_game(Difficulty level) {
   Record usuario;
   std::vector<Record> vec;
-  read_records(vec, file_name);
   
   bool preencheu = false;
   std::vector<std::vector<char>> mapa;
