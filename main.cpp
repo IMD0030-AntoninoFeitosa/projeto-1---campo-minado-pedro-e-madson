@@ -186,10 +186,20 @@ void start_game(Difficulty level) {
           std::cout << usuario.name <<std::endl;
           std::cout << usuario.milliseconds <<std::endl;
           std::cout << usuario.nivel <<std::endl;
-          
+
+          Record ** records {new Record*[vec.size()]};
+          for(int i=0;i<vec.size();i++){
+            records[i] = new Record{vec[i]};
+          }
+          char output [] = "logs.txt";
           // metricas(cena, start, finish);
           mensagem_ganhou();
-          write_records(vec, file_name);
+          write(output, vec.size(), records);
+          for(int i=0;i<vec.size(); i++){
+            delete records[i];
+          }
+          delete [] records;
+          // write_records(vec, file_name);
           abort();
         } else {
           // std::cout << std::endl;
