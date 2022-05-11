@@ -11,21 +11,6 @@ bool record_cmp(Record &a, Record &b) {
   return a.milliseconds < b.milliseconds;
 }
 
-void sort122(std::vector<Record> &records) {
-  for(int k=0;k<records.size();k++){
-    int pos = 0;
-    for(int i=k+1;i<records.size();i++){
-      if(record_cmp(records[i], records[pos])){
-        pos = i;
-      }
-    }
-    Record tmp = records[pos];
-    records[pos] = records[k];
-    records[k] = tmp;
-  }
-}
-
-
 std::ostream &operator<<(std::ostream &os, Record const &r) {
   return os << '{' << r.name << ',' << r.milliseconds / 1000.0 << ',' << r.nivel << '}';
 }
