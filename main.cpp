@@ -158,6 +158,7 @@ void start_game(Difficulty level) {
   usuario.nivel = level;
 
   if (level == 0) {
+    std::cout << "carregando bombas.."<< std::endl;
     preencher_bombas(cena);
     preencheu = true;
   }
@@ -186,7 +187,6 @@ void start_game(Difficulty level) {
         if (cena.reveladas ==
             ((cena.dimensoes.x * cena.dimensoes.y) - cena.dimensoes.minas)) {  
           std::chrono::duration<double> elapsed = finish - start;
-
           usuario.milliseconds = elapsed.count();
           vec.push_back(usuario);
 
@@ -203,7 +203,12 @@ void start_game(Difficulty level) {
           metricas(cena, start, finish);
           mensagem_ganhou();
           
-          write(output, vec.size(), records);
+          if(count_records_level(usuario.nivel, file_name) < 10){
+            write(output, vec.size(), records);
+          } else {
+            std::cout<<"limite maximo de registros"<<std::endl;
+          }
+          
           
           for(int i=0;i<vec.size(); i++){
             delete records[i];
@@ -246,11 +251,30 @@ void start_game(Difficulty level) {
               abort();
             }
 
-            if (eh_valida) {
+            if (eh_valida && verificar_marcacoes(cena, celula) == 0) {
               cena.quantidade_jogadas++;
               revelar(cena, l, c, 1);
             } else {
-              std::cout << "<< OPCAO INVÁLIDA >> " << std::endl;
+              int marc = verificar_marcacoes(cena, celula);
+              int nbom = numero_bombas(cena, celula);
+              if (marc == nbom){
+                std::vector<std::vector<int>> ladosadj = adjacentes(cena, celula);
+                for (int i = 0; i < ladosadj.size(); i++){
+                  if (verifica_bomba(cena, ladosadj[i])){
+                      printf("\033c");
+                      print_mapa(cena);
+                      metricas(cena, start, finish);
+                      mensagem_perdeu();
+                      abort();
+                  } else {
+                    cena.selecionados.push_back(ladosadj[i]);
+                  }
+                }
+              } else {
+                 std::cout << "<< OPCAO INVÁLIDA >> " << std::endl;
+              }
+             
+              
             }
           } else if (action == 'M' || action == 'm') {
             printf("\033c");
