@@ -41,6 +41,26 @@ std::vector<Record> ranking_nivel (std::vector<Record> &records, int nivel){
   }
   return saida;
 }
+void print_vector(std::vector<Record> &records){
+  std::string cores[] = {
+    "\033[1;32m",
+    "\033[1;33m",
+    "\033[1;33m",
+    "\033[0;31m",
+    "\033[0;31m",
+    "\033[0;31m",
+    "\033[0;31m",
+    "\033[0;31m",
+    "\033[0;31m",
+    "\033[0;31m",
+  };
+  int n = records.size();
+  if(n >= 10) n = 10;
+  for (int i = 0; i < n; i++){
+    std::cout <<cores[i] <<"              "<<i + 1<<"º Nome: " << records[i].name << "; ";
+    std::cout <<"Tempo: " << records[i].milliseconds << "/s\033[0m"<< std::endl;
+  }
+}
 void print_ranking(std::vector<Record> &records) {
   
   std::vector<Record> iniciante = ranking_nivel(records, 0);
@@ -54,18 +74,21 @@ void print_ranking(std::vector<Record> &records) {
   std::cout << "\033[1;32m---------- MELHORES PONTUAÇÕES-------------"<<std::endl;
   if (iniciante.size() > 0){
     std::cout <<"INICIANTE     "<<std::endl;
-    std::cout <<"              NOME: " << iniciante[0].name <<std::endl;
-    std::cout <<"              TEMPO: " << iniciante[0].milliseconds << "/s"<< std::endl;
+    print_vector(iniciante);
+    // std::cout <<"              NOME: " << iniciante[0].name <<std::endl;
+    // std::cout <<"              TEMPO: " << iniciante[0].milliseconds << "/s"<< std::endl;
   }
   if (intermediario.size() > 0){
-    std::cout <<"INTERMEDIARIO "<<std::endl;
-    std::cout <<"              NOME: " << intermediario[0].name <<std::endl;
-    std::cout <<"              TEMPO: " << intermediario[0].milliseconds << "/s"<< std::endl;
+    std::cout <<"\033[1;32mINTERMEDIARIO "<<std::endl;
+    print_vector(intermediario);
+    // std::cout <<"              NOME: " << intermediario[0].name <<std::endl;
+    // std::cout <<"              TEMPO: " << intermediario[0].milliseconds << "/s"<< std::endl;
   }
   if (avancado.size() > 0){
-    std::cout <<"AVANÇADO      "<<std::endl;
-    std::cout <<"              NOME: " << avancado[0].name <<std::endl;
-    std::cout <<"              TEMPO: " << avancado[0].milliseconds << "/s"<< std::endl;
+    std::cout <<"\033[1;32mAVANÇADO      "<<std::endl;
+    print_vector(avancado);
+    // std::cout <<"              NOME: " << avancado[0].name <<std::endl;
+    // std::cout <<"              TEMPO: " << avancado[0].milliseconds << "/s"<< std::endl;
   }
 
   std::cout << "--------------------------------------------\033[0m"<<std::endl;
@@ -111,10 +134,24 @@ void read_records(std::vector<Record> &records, std::string &file_name) {
   }
 }
 
+int count_records_level(int level, std::string &file_name){
+  int saida = 0;
+  std::vector<Record> vec;
+  read_records(vec, file_name);
+  
+  Record ** records {new Record*[vec.size()]};
+  for(int i=0;i<vec.size();i++){
+    if(vec[i].nivel == level){
+      saida++;
+    }
+  }
+  return saida;
+}
+
 // Alocação dinâmica de memória
 
 void write(char * file_name, int n, Record ** vector){
-
+  
   std::ofstream file;
   file.open(file_name, std::ios::app);
   if (file.is_open()) {
@@ -160,3 +197,4 @@ Record ** read(char * file_name, int & n){
   delete [] vector;
   return result;
 }
+
